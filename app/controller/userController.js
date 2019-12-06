@@ -1,3 +1,5 @@
+// module dependencies
+
 const express = require('express');
 const check = require('./../libs/checkLib');
 const generatePassword = require('../libs/generatePasswordLib');
@@ -9,8 +11,11 @@ const mongoose = require('mongoose');
 const shortid = require('shortid');
 const logger = require('../libs/loggerLib');
 
+// model dependencies
 const userModel = mongoose.model('User');
 const authModel = mongoose.model('Auth');
+
+
 
 // new user signup function
 let signup = (req, res) => {
@@ -65,7 +70,7 @@ let signup = (req, res) => {
                         mobileNumber: req.body.mobileNumber,
                         countryCode: req.body.countryCode,
                         createdOn: Date.now(),
-                        forgotPasswordKey: shortid.generate()
+                        roomId: shortid.generate()
                     })
                     newUser.save((err, result) => {
                         if (err) {
@@ -78,7 +83,6 @@ let signup = (req, res) => {
                             delete userDetails.password;
                             delete userDetails._id;
                             delete userDetails.__v;
-                            delete userDetails.forgotPasswordKey;
                             let apiResponse = response.generate(false, "signup success", 200, userDetails);
                             resolve(apiResponse);
                         }
@@ -103,7 +107,11 @@ let signup = (req, res) => {
         })
 
 }
+// end of signup functionality
 
+
+
+// login functionality for creating and saving authToken on login
 let login = (req, res) => {
 
     // checking if valid login details have been input
@@ -251,6 +259,7 @@ let login = (req, res) => {
         })
 
 }
+// end of login functionality
 
 
 // gets all the user details available on the db
@@ -276,6 +285,7 @@ let getAllUsers = (req, res) => {
             }
         })
 }
+// end of get all users details
 
 
 // to get single user details from DB
@@ -300,6 +310,7 @@ let getSingleUser = (req, res) => {
             }
         })
 }
+//end of get single user details
 
 
 //edit user details
@@ -321,7 +332,7 @@ let editUser = (req, res) => {
             res.send(apiResponse);
         }
     })
-}
+}// end of edit user details
 
 // edit password on forgotPassword
 let editUserPassword = (req, res)=>{
@@ -340,7 +351,7 @@ let editUserPassword = (req, res)=>{
             res.send(apiResponse);
         }
     })
-}
+}// end of edit password on forgotPassword
 
 
 // delete user
@@ -360,7 +371,7 @@ let deleteUser = (req, res) => {
             res.send(apiResponse);
         }
     })
-}
+}// end of delete user
 
 // on verifying email and phoneNumber this sends a new token generated with one hour expiry
 let forgotPassword = (req, res) => {
@@ -494,8 +505,28 @@ let forgotPassword = (req, res) => {
         res.send(error);
     })
 
-}
+} // end of forgot password
 
+
+// function to logout user
+let logout = (req, res)=>{
+    authModel.remove({userId : req.user.userId}, (err, result)=>{
+        if(err){
+            logger.error("error removing user details from auth document", "userController : logout", 9);
+            let apiResponse = response.generate(true, "error logging out", 500, err);
+            res.send(apiResponse);
+        }else if(check.isEmpty(result)){
+            logger.error("no user found to remove", "userController - logout", 9);
+            let apiResponse = response.generate(true, "user already logged out", 400, null);
+            res.send(apiResponse);
+        }else {
+            logger.info("user successfully logged out","userController - logout", 9);
+            let apiResponse = response.generate(false, "logout successful", 200, result);
+            res.send(apiResponse);
+        }
+    })
+}
+// end of logout
 
 module.exports = {
     signup: signup,
@@ -505,5 +536,6 @@ module.exports = {
     editUser: editUser,
     deleteUser: deleteUser,
     forgotPassword : forgotPassword,
-    editUserPassword : editUserPassword
+    editUserPassword : editUserPassword,
+    logout : logout
 }

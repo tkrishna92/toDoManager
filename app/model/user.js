@@ -33,6 +33,9 @@ let User = new Schema({
         type : String,
         default : ''
     },
+    roomId :{
+        type : String
+    },
     createdOn : {
         type : String,
         default : ''

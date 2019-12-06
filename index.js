@@ -67,7 +67,7 @@ server.on('error', onError);
 server.on('listening', onListening);
 
 const socketLib = require('./app/libs/socketLib');
-// const socketServer = socketLib.setServer(server);
+const socketServer = socketLib.setServer(server);
 
 function onError(error){
     if(error.syscall !== 'listen'){
