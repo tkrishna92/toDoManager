@@ -23,7 +23,11 @@ let createNewList = (req, res)=>{
         return new Promise((resolve, reject)=>{
             
                 if(req.body.listTitle){
-                    ListModel.findOne({listTitle : req.body.listTitle}, (err, result)=>{
+                    let queryObj = {
+                        listTitle : req.body.listTitle,
+                        listOwner : req.user.userId
+                    }
+                    ListModel.findOne(queryObj, (err, result)=>{
                         if(err){
                             logger.error("error finding if the given title exists", "toDoController : createNewList - validateInputParams", 9);
                             let apiResponse = response.generate(true, "internal DB error", 500, err);
