@@ -198,7 +198,8 @@ let setRouter = (app)=>{
      */
 
     // required body params : listId
-    // required body params : listOwnerId, actionOnList
+    // required body params : listOwnerId, 
+    // optional body param : actionOnList ---> used to control the friends access to action on list
     // required body/header/query param : authToken
     // optional body params : listDescription, listTitle
     app.put(`${baseUrl}/editList`, auth.isAuthenticated, friendCheck.isAuthorized,controller.editList);
@@ -212,7 +213,7 @@ let setRouter = (app)=>{
      *
      * @apiParam {String} authToken authToken of the user creating the item to be passed as body/path/query/header param
      * @apiParam {String} listOwnerId user Id of the owner of the list to be passed as a body parameter
-     * @apiParam {String} actionOnList actionOnList parameter set to "true" to be passed as a body parameter
+     * @apiParam {String} actionOnList actionOnList parameter set to "true" to be passed as a body parameter- optional
      * @apiParam {String} listId listId of the list to be passed as body parameter
      * @apiParam {String} listDescription  description of the item for editting to be passed as a body parameter - optional
      * @apiParam {String} listTitle  title of the item for editting to be passed as a body parameter - optional
@@ -220,12 +221,20 @@ let setRouter = (app)=>{
      *  @apiSuccessExample {json} Success-Response: 
      * {
             "errorOccured": false,
-            "message": "list edited successfully",
+            "message": "list update success",
             "status": 200,
             "data": {
-                "n": 1,
-                "nModified": 1,
-                "ok": 1
+                "listOwner": "oLQ5Dbn3",
+                "listDescription": "item description 1 - edited 3",
+                "listCreatedOn": null,
+                "listStatus": "open",
+                "listPreviousId": "oMOV61Gr",
+                "listNextId": "",
+                "listModifiedBy": "aAg78NDM",
+                "listModifiedOn": "2019-12-08T14:05:33.897Z",
+                "listIsHidden": "false",
+                "listTitle": "title 1 - edited 3",
+                "listId": "OfrwXCh7",
             }
         }
      * 
@@ -240,8 +249,8 @@ let setRouter = (app)=>{
      * @apiErrorExample {json} Error- Response:
      * {
             "errorOccured": true,
-            "message": "listId to be edited is not provided",
-            "status": 400,
+            "message": "no list found for editing",
+            "status": 404,
             "data": null
         }
      */
@@ -658,6 +667,89 @@ let setRouter = (app)=>{
      * {
             "errorOccured": true,
             "message": "current item not found",
+            "status": 404,
+            "data": null
+        }
+     */
+
+
+    // required body params : itemId
+    // required body param : listOwnerId
+    // required body/header/query param : authToken
+    app.put(`${baseUrl}/undoListAction`, auth.isAuthenticated, friendCheck.isAuthorized, controller.undoListAction);
+
+
+
+    /**
+     * @api {post} List undoAction - for undoing the most recent action
+     * @apiVersion 1.0.0
+     * @apiGroup list
+     *
+     * @apiParam {String} authToken authToken of the user creating the item to be passed as body/path/query/header param
+     * @apiParam {String} listOwnerId user Id of the owner of the list to be passed as a body parameter
+     * @apiParam {String} itemId itemId of the item to be passed as path parameter
+     * 
+     *  @apiSuccessExample {json} Success-Response: 
+     * {
+            "errorOccured": false,
+            "message": "undo list action successful",
+            "status": 200
+        }
+     * 
+     * @apiErrorExample {json} Error- Response:
+     * {
+     * "errorOccurred": true,
+        "message": "error updating current version", 
+        "status": 500,
+        "data": "error data"
+     * }
+     *  
+     * @apiErrorExample {json} Error- Response:
+     * {
+            "errorOccured": true,
+            "message": "list version to revert to not found",
+            "status": 404,
+            "data": null
+        }
+     */
+
+
+
+    // required path params : listId
+    // required body param : listOwnerId
+    // required body/header/query param : authToken
+    app.put(`${baseUrl}/redoListAction`, auth.isAuthenticated, friendCheck.isAuthorized, controller.redoListAction);
+
+
+
+    /**
+     * @api {post} List redoAction - for redoing the most recent action
+     * @apiVersion 1.0.0
+     * @apiGroup list
+     *
+     * @apiParam {String} authToken authToken of the user creating the item to be passed as body/path/query/header param
+     * @apiParam {String} listOwnerId user Id of the owner of the list to be passed as a body parameter
+     * @apiParam {String} itemId itemId of the item to be passed as path parameter
+     * 
+     *  @apiSuccessExample {json} Success-Response: 
+     * {
+            "errorOccured": false,
+            "message": "redo list action successful",
+            "status": 200
+        }
+     * 
+     * @apiErrorExample {json} Error- Response:
+     * {
+     * "errorOccurred": true,
+        "message": "error updating current version", 
+        "status": 500,
+        "data": "error data"
+     * }
+     *  
+     * @apiErrorExample {json} Error- Response:
+     * {
+            "errorOccured": true,
+            "message": "list version to revert to not found",
             "status": 404,
             "data": null
         }

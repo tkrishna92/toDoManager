@@ -9,6 +9,11 @@ let ListSchema = new Schema({
     listId : {type : String, unique : true, index : true},
     listCreatedOn : {type : Date, default : ''},
     listStatus : {type : String, default : 'open'},
+    listPreviousId : {type : String, default : ''},
+    listNextId : {type : String, default : ''},
+    listModifiedBy : {type : String, default : ''},
+    listModifiedOn : {type : Date, default : ''},
+    listIsHidden : {type : String, default : false}
 })
 
 mongoose.model('List', ListSchema);

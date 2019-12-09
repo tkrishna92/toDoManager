@@ -1,9 +1,9 @@
 const socket = io('http://localhost:3000');
 
-const authToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqd3RpZCI6InpmMlNWQ0tMIiwiaWF0IjoxNTc1ODc2MTEzNzUyLCJleHAiOjE1NzU5NjI1MTMsInN1YiI6ImF1dGhUb2tlbiIsImlzcyI6InRvRG9NYW5hZ2VyIiwiZGF0YSI6eyJ1c2VySWQiOiJvTFE1RGJuMyIsImZpcnN0TmFtZSI6IkhhcmkiLCJsYXN0TmFtZSI6IkhhcmFuIiwiZW1haWwiOiJoYXJpMkBzb21lZG9tYWluLmNvbSIsIm1vYmlsZU51bWJlciI6MTIzNDU2Nzg5MCwiY291bnRyeUNvZGUiOiIrOTEiLCJyb29tSWQiOiJqSVBjcVAxVmIifX0.X38wSS7tGlj2uOUjOQn63MxEHTMuYOhz3h2dKIR19F4";
-const userId = "oLQ5Dbn3";
-const roomId = "jIPcqP1Vb";
-const userName = "hari haran";
+const authToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqd3RpZCI6ImQzSEtBWlFrIiwiaWF0IjoxNTc1ODc2MTYyMDI3LCJleHAiOjE1NzU5NjI1NjIsInN1YiI6ImF1dGhUb2tlbiIsImlzcyI6InRvRG9NYW5hZ2VyIiwiZGF0YSI6eyJ1c2VySWQiOiI1UjJBRFFtTCIsImZpcnN0TmFtZSI6IkhhcmkiLCJsYXN0TmFtZSI6IkhhcmFuIiwiZW1haWwiOiJoYXJpNEBzb21lZG9tYWluLmNvbSIsIm1vYmlsZU51bWJlciI6MTIzNDU2Nzg5MCwiY291bnRyeUNvZGUiOiIrOTEiLCJyb29tSWQiOiJ2Wnpfck1yWHgifX0.w6F0132Yw0pPoW3kjK0Pr81Zuf29gLb2CC3zlcqnOQw";
+const userId = "5R2ADQmL";
+const roomId = "vZz_rMrXx";
+const userName = "hari haran3"
 
 let listRequest = {
     listOwner : userId,
@@ -23,15 +23,16 @@ let chatSocket = ()=>{
         socket.emit('auth-user', (authToken));
     })
 
-    // socket join friends room test
-    socket.on('friend-test',(data)=>{
-        console.log(data);
-    })
 
     // get online-user-list 
     socket.on('online-user-list',(onlineUsers)=>{
         console.log("received online user list")
         console.log(onlineUsers);
+    })
+
+    // socket join friends room test
+    socket.on('friend-test',(data)=>{
+        console.log(data);
     })
 
     // to get the user lists and user friends
@@ -52,33 +53,11 @@ let chatSocket = ()=>{
 
     //----------------------- notifcations listening events--------------------------------
 
-    // socket creates a friend request notification on "friend-request-notifcation"
     socket.on('friend-request-notification', ((data)=>{
-        console.log("friend-request-notification")
-        console.log(`${data.senderName} ${data.message} ${data.receiverName}`)
+        console.log(`${data.senderName} ${data.message} ${data.receiverName}`)        
     }))
 
 
-
-
-
-    socket.on('typing',(data)=>{
-        console.log(data + " is typing");
-    })
-
-    $('#send').on('click', ()=>{
-        let createdTime = Date.now();
-        let messageText = $('#messageToSend').val();
-        chatMessageObj.message = messageText;
-        chatMessageObj.createdOn = createdTime;
-        console.log(chatMessageObj);
-        socket.emit('chat-msg', chatMessageObj);
-    })
-
-     $('#messageToSend').on('keypress', ()=>{
-        console.log("emiting typing");
-        socket.emit('typing', "kiran rao");
-    })
 
 
     // -------------------- emiting events-------------------------------------------
@@ -97,12 +76,12 @@ let chatSocket = ()=>{
     })
 
 
-    //-------------------- emiting notification events------------------------------
+//-------------------- emiting notification events------------------------------
 
     // on sending a friend request and getting a success response
     $('#sendFriendRequestNotification').on('click', ()=>{
         let data = {
-            friendName: userName,
+            friendName:userName,
             isFriend: false,
             userId: $('#userId').val(), // friend request to userId
             friendId: userId,  
@@ -124,19 +103,7 @@ let chatSocket = ()=>{
         }
         socket.emit('friend-request', data);
     })
-
-    //on creating a list and getting a success response
-    $('#sendCreateListNotification').on('click', ()=>{
-        let data = {
-            roomId : roomId,
-            notificationMessage : "created a new list",
-            userName : userName
-        }
-        socket.emit('list-action', data);
-    })
-
-
-
+    
 }
 
 chatSocket();

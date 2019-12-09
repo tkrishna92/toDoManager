@@ -5,7 +5,6 @@ const check = require('../libs/checkLib');
 const logger = require('../libs/loggerLib');
 const response = require('../libs/responseLib');
 
-
 const UserModel = mongoose.model('User');
 const FriendModel = mongoose.model('Friend');
 
@@ -49,8 +48,8 @@ let sendFriendRequest = (req, res)=>{
             let queryObj = {
                 $and : [
                     {userId : req.body.userId},
-                    {friendId : req.user.userId},
-                    {isFriend : false}
+                    {friendId : req.user.userId}
+                    // {isFriend : false}
                 ]
             }
             FriendModel.findOne(queryObj, (err, result)=>{
@@ -79,8 +78,8 @@ let sendFriendRequest = (req, res)=>{
                     })
 
                 }else{
-                    logger.error("friend request already sent and is pending acceptance", "friendController : sendFriendRequest - sendSenderDetails", 9);
-                    let apiResponse = response.generate(true, "friend request already sent and is pending acceptance", 400, null);
+                    logger.error("friend request already sent and is either accepted or pending acceptance", "friendController : sendFriendRequest - sendSenderDetails", 9);
+                    let apiResponse = response.generate(true, "friend request already sent and is either accepted or pending acceptance", 400, null);
                     reject(apiResponse);
                 }
 
