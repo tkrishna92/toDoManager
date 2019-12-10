@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <title>Socket.io client 3</title>
     </head>
-    <body>
+    <body id = "bodyId">
         <div>
             <input style="width:50vw;" type="text" id="messageToSend">
             <button style="width:10vw;" id= "send">send</button>
@@ -20,6 +20,14 @@
         <div>
             <input style="width:50vw;" type="text" id="acceptedUserId">
             <button style="width:50vw;" id= "sendAcceptRequestNotification">notification on accept friend request</button>
+        </div>
+        <div>
+            <input style="width:50vw;" type="text" id="listOwner">
+            <button style="width:50vw;" id= "sendCreateListNotification">notification create list</button>
+        </div>
+        <div>
+            <input style="width:50vw;" type="text" id="listId">
+            <button style="width:50vw;" id= "sendCreateItemNotification">notification create item</button>
         </div>
             
         <script src ="jquery.min.js"></script>

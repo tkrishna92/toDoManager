@@ -15,11 +15,9 @@ let ItemSchema = new Schema({
     modifiedBy : {type : String, default : ''},
     modifiedOn : {type : Date, default : ''},
     parent : {type : String, default : ''},
-    children : {type : Array, default : []},
     status : {type : String, default : 'open'},
     isHidden : {type : Boolean, default : false},
-    isPrivate : {type : Boolean, default : true},
-    privilegedAuthorId : {type : Array, default : []}
+    isPrivate : {type : Boolean, default : true}
 })
 
 mongoose.model('Item', ItemSchema);

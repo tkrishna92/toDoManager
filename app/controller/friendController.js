@@ -13,6 +13,7 @@ const FriendModel = mongoose.model('Friend');
 // requires userId of the request receiver to be passed as body parameter
 let sendFriendRequest = (req, res)=>{
 
+    console.log("sendFriendRequest 1")
     let validateInputParams = ()=>{
         return new Promise((resolve, reject)=>{
             if(req.user.userId){
@@ -45,14 +46,46 @@ let sendFriendRequest = (req, res)=>{
 
     let sendSenderDetails = (senderDetails)=>{
         return new Promise((resolve, reject)=>{
+            console.log("sendFriendRequest 2")
             let queryObj = {
-                $and : [
-                    {userId : req.body.userId},
-                    {friendId : req.user.userId}
-                    // {isFriend : false}
+                $or :[
+                    {
+                        $and : [
+                            {userId : req.body.userId},
+                            {friendId : req.user.userId},
+                            {isFriend : false}
+                        ]
+                    
+                    },
+                    {
+                        $and : [
+                            {userId : req.body.userId},
+                            {friendId : req.user.userId},
+                            {isFriend : true}
+                        ]
+                    
+                    },
+                    {
+                        $and : [
+                            {userId : req.user.userId},
+                            {friendId : req.body.userId},
+                            {isFriend : false}
+                        ]
+                    
+                    },
+                    {
+                        $and : [
+                            {userId : req.user.userId},
+                            {friendId : req.body.userId},
+                            {isFriend : true}
+                        ]
+                    
+                    }
                 ]
+                
             }
             FriendModel.findOne(queryObj, (err, result)=>{
+                console.log("sendFriendRequest 3")
                 if(err){
                     logger.error("error checking if the friend request exists", "friendController : sendFriendRequest - sendSenderDetails",9);
                     let apiResponse = response.generate(true, "error while checking if a pending friend request already exits", 500, err);
