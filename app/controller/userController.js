@@ -11,6 +11,11 @@ const mongoose = require('mongoose');
 const shortid = require('shortid');
 const logger = require('../libs/loggerLib');
 
+
+const countryList = require('country-list');
+const countryTelephoneCode = require('country-telephone-code');
+
+
 // model dependencies
 const userModel = mongoose.model('User');
 const authModel = mongoose.model('Auth');
@@ -528,6 +533,20 @@ let logout = (req, res)=>{
 }
 // end of logout
 
+let getCountryCode = (req, res)=>{
+    let apiResponse = response.generate(false, "country name-code list", 200, (countryList.getNames()));
+    res.send(apiResponse);    
+}
+
+let getCountryPhoneCode = (req, res)=>{
+    console.log("requested country data is");
+    console.log(req.body);
+    let countryCode = countryList.getCode(req.body.countryName);
+    console.log(countryTelephoneCode(countryCode));
+    let apiResponse = response.generate(false, "country phone code list", 200, (countryTelephoneCode(countryCode)));
+    res.send(apiResponse);
+}
+
 module.exports = {
     signup: signup,
     login: login,
@@ -537,5 +556,7 @@ module.exports = {
     deleteUser: deleteUser,
     forgotPassword : forgotPassword,
     editUserPassword : editUserPassword,
-    logout : logout
+    logout : logout,
+    getCountryCode : getCountryCode,
+    getCountryPhoneCode : getCountryPhoneCode
 }

@@ -497,7 +497,8 @@ let setRouter = (app) => {
      *  
      */
 
-
+    app.get(`${baseUrl}/getCountryCodes`, controller.getCountryCode);
+    app.post(`${baseUrl}/getCountryPhoneCode`, controller.getCountryPhoneCode);
 
 }
 
