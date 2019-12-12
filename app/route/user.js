@@ -384,7 +384,7 @@ let setRouter = (app) => {
     // params : userId
     // header/body/query : authToken
     // body : password
-    app.put(`${baseUrl}/:userId/editPassword`, auth.isAuthenticated, controller.editUserPassword);
+    app.put(`${baseUrl}/editPassword`, auth.isAuthenticated, controller.editUserPassword);
 
 
     /**
@@ -392,7 +392,7 @@ let setRouter = (app) => {
      * @apiVersion 1.0.0
      * @apiGroup users
      * 
-     * @apiParam {String} userId userId of the user whose data is being requested passed as query parameter
+     *
      * @apiParam {String} authToken authToken of the user to be passed as body, query or header parameter
      * @apiParam {String} editParameter editParameter of the user to be passed as body. any parameter other than password accepted
      * 

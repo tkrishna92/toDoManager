@@ -99,6 +99,17 @@ let setServer = (server)=>{
             eventEmitter.emit('get-user-friends',(data.userId));
         })
 
+
+
+        // client on logging in successfully emits "friend-request-count" to which the socket sends
+        // back the number of pending request
+
+        socket.on('friend-request-count',(request)=>{
+            eventEmitter.emit('request-count', (request))
+        })
+
+
+        // -----------------------------------eventEmitters events---------------------
         // emit user lists
         eventEmitter.on('send-list', (data)=>{
             console.log('send-list event heard from eventEmitter')
@@ -122,6 +133,10 @@ let setServer = (server)=>{
             console.log("user friends event heard from eventEmitter");
             console.log(data);
             myIo.emit(data.userId, data)
+        })
+
+        eventEmitter.on('pending-count', (data)=>{
+            myIo.emit(data.userId, data);
         })
 
         // join friends rooms
@@ -346,6 +361,35 @@ eventEmitter.on('get-user-friends',(userId)=>{
 })
 
 
+eventEmitter.on('request-count', (request)=>{
+    let queryObj = {
+        $and : [
+            {userId : request},
+            {isFriend : false}
+        ]
+    }
+        FriendModel.count(queryObj)
+        .select('-__v -_id')
+        .lean()
+        .exec((err, result)=>{
+            if(err){
+                logger.error("error retreiving pending request count", "socketLib : eventEmitter on 'request-count", 9);
+                let socketResponse = response.generate(true, "error retreiving pending requests count", 500, err);
+                let data = {userId : request, userFriends : socketResponse};
+                eventEmitter.emit('error-occurred', data);
+            }else if(check.isEmpty(result)){
+                logger.error("no pending requests", "socketLib : eventEmitter on 'request-count", 9);
+                let socketResponse = response.generate(true, "no pending requests found", 404, null);
+                let data = {userId : request, userFriends : socketResponse};
+                eventEmitter.emit('error-occurred', data);
+            }else {
+                logger.info("pending requests count found", "socketLib : eventEmitter on 'request-count", 9);
+                let socketResponse = response.generate(false, "pending requests count found", 200, result);
+                let data = {userId : request, userFriends : socketResponse};
+                eventEmitter.emit('pending-count', data);
+            }
+        })
+})
 
 
 

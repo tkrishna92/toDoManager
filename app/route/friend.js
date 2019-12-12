@@ -115,6 +115,53 @@ setRouter = (app) => {
         }
      */
 
+     // required body/header/query param : authToken
+    app.get(`${baseUrl}/checkRequestCount`, auth.isAuthenticated, controller.checkRequestCount);
+
+
+
+    /**
+     * @api {post} friend checkRequest - for checking pending requests available for the user
+     * @apiVersion 1.0.0
+     * @apiGroup friend
+     * 
+     * @apiParam {String} authToken authToken of the user sending the request to be sent as header/body/query/path parameter
+     * 
+     *  @apiSuccessExample {json} Success-Response: 
+     * {
+            "errorOccured": false,
+            "message": "pending requests found",
+            "status": 200,
+            "data": [
+                {
+                    "friendName": "Hari Haran",
+                    "isFriend": false,
+                    "_id": "5deb4be3d9defb42ecb2eb47",
+                    "userId": "oLQ5Dbn3",
+                    "friendId": "aAg78NDM",
+                    "friendRoom": "Iyn40QV8Y",
+                    "__v": 0
+                }
+            ]
+        }
+     * 
+     * @apiErrorExample {json} Error- Response:
+     * {
+     * "errorOccurred": true,
+        "message": "error retreiving pending request", 
+        "status": 500,
+        "data": "error data"
+     * }
+     *  
+     * @apiErrorExample {json} Error- Response:
+     * {
+            "errorOccured": true,
+            "message": "no pending requests found",
+            "status": 404,
+            "data": null
+        }
+     */
+
 
     // required body/header/query param : authToken
     // required body parameter : friendId

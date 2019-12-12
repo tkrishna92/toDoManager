@@ -168,6 +168,35 @@ let checkRequest = (req, res)=>{
 // completed checking pending requests functionality
 
 
+// check if the user has any friend request pending
+let checkRequestCount = (req, res)=>{
+    let queryObj = {
+        $and : [
+            {userId : req.user.userId},
+            {isFriend : false}
+        ]
+    }
+        FriendModel.count(queryObj)
+        .select('-__v -_id')
+        .lean()
+        .exec((err, result)=>{
+            if(err){
+                logger.error("error retreiving pending request count", "friendController : checkRequestCount", 9);
+                let apiResponse = response.generate(true, "error retreiving pending requests count", 500, err);
+                res.send(apiResponse);
+            }else if(check.isEmpty(result)){
+                logger.error("no pending requests", "friendController : checkRequestCount", 9);
+                let apiResponse = response.generate(true, "no pending requests found", 404, null);
+                res.send(apiResponse);
+            }else {
+                logger.info("pending requests count found", "friendController : checkRequestsCount", 9);
+                let apiResponse = response.generate(false, "pending requests count found", 200, result);
+                res.send(apiResponse);
+            }
+        })
+}
+
+
 
 // accepting friend request function
 // updates the friendRequest "isFriend":"true"
@@ -373,6 +402,7 @@ let deleteRequest = (req, res)=>{
 module.exports = {
     sendFriendRequest : sendFriendRequest,
     checkRequest : checkRequest,
+    checkRequestCount : checkRequestCount,
     acceptFriend : acceptFriend,
     friendCheck : friendCheck,
     
