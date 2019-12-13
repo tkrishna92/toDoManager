@@ -382,8 +382,9 @@ let editList = (req, res) => {
                         listDescription: (req.body.listDescription) ? req.body.listDescription : result.listDescription,
                         listId: result.listNextId,
                         listCreatedOn : result.CreatedOn,
-                        listStatus : result.listStatus,
+                        listStatus : (req.body.listStatus)?req.body.listStatus:result.listStatus,
                         listPreviousId: req.body.listId,
+                        listIsHidden : (req.body.listIsHidden)?req.body.listIsHidden:result.listIsHidden,
                         listNextId : '',
                         listModifiedBy: req.user.userId,
                         listModifiedOn : Date.now()
@@ -403,9 +404,6 @@ let editList = (req, res) => {
                     })
                 }
             })
-
-
-
         })
     }
 
@@ -430,8 +428,7 @@ let editList = (req, res) => {
                         console.log(newListVersion);
                         resolve(newListVersion);
                     }
-                })
-            
+                })            
         })
     }
 
@@ -487,9 +484,9 @@ let editList = (req, res) => {
 // delete item function
 //takes itemId as a path param
 let deleteItem = (req, res) => {
-    if (req.params.itemId) {
+    if (req.body.itemId) {
 
-        ItemModel.remove({ itemId: req.params.itemId }, (err, result) => {
+        ItemModel.remove({ itemId: req.body.itemId }, (err, result) => {
             if (err) {
                 logger.error("error deleting item", "toDoController : deleteItem", 9);
                 let apiResponse = response.generate(true, "error deleting item", 500, err);
@@ -520,8 +517,8 @@ let deleteList = (req, res) => {
     // deleting the list items first before deleting the list
     let deleteListItems = () => {
         return new Promise((resolve, reject) => {
-            if (req.params.listId) {
-                ItemModel.remove({ listId: req.params.listId }, (err, result) => {
+            if (req.body.listId) {
+                ItemModel.remove({ listId: req.body.listId }, (err, result) => {
                     if (err) {
                         logger.error("error deleting the list items", "toDoController : deleteList - deleteListItems", 9);
                         let apiResponse = response.generate(true, "error deleting the list items", 500, err);
@@ -542,7 +539,7 @@ let deleteList = (req, res) => {
 
     let deletingList = () => {
         return new Promise((resolve, reject) => {
-            ListModel.remove({ listId: req.params.listId }, (err, result) => {
+            ListModel.remove({ listId: req.body.listId }, (err, result) => {
                 if (err) {
                     logger.error("error deleting list", "toDoController : deleteList - deleteListItems", 9);
                     let apiResponse = response.generate(true, "error deleting list", 500, err);
@@ -643,11 +640,11 @@ let getAllListItems = (req, res) => {
 }
 
 //mark item as done.
-// it takes itemId as a path param
+// it takes itemId as a body param
 let markItemAsDone = (req, res) => {
-    if (req.params.itemId) {
+    if (req.body.itemId) {
         let updatingValue = { status: "done" };
-        ItemModel.update({ itemId: req.params.itemId }, updatingValue, { multi: true }, (err, result) => {
+        ItemModel.update({ itemId: req.body.itemId }, updatingValue, { multi: true }, (err, result) => {
             if (err) {
                 logger.error("error upadting the status as done", "toDoController : markItemAsDone", 9);
                 let apiResponse = response.generate(true, "error updating the status as done", 500, err);
@@ -670,11 +667,11 @@ let markItemAsDone = (req, res) => {
 
 
 //mark item as open.
-// it takes itemId as a path param
+// it takes itemId as a body param
 let markItemAsOpen = (req, res) => {
-    if (req.params.itemId) {
+    if (req.body.itemId) {
         let updatingValue = { status: "open" };
-        ItemModel.update({ itemId: req.params.itemId }, updatingValue, { multi: true }, (err, result) => {
+        ItemModel.update({ itemId: req.body.itemId }, updatingValue, { multi: true }, (err, result) => {
             if (err) {
                 logger.error("error upadting the status as open", "toDoController : markItemAsOpen", 9);
                 let apiResponse = response.generate(true, "error updating the status as open", 500, err);
@@ -701,8 +698,8 @@ let undoAction = (req, res) => {
     // requires current version itemId as path parameter
     let updatePreviousVersion = () => {
         return new Promise((resolve, reject) => {
-            if (req.params.itemId) {
-                ItemModel.update({ nextId: req.params.itemId }, { isHidden: false }, { multi: true }, (err, result) => {
+            if (req.body.itemId) {
+                ItemModel.update({ nextId: req.body.itemId }, { isHidden: false }, { multi: true }, (err, result) => {
                     if (err) {
                         logger.error("error updating previous version", "toDoController : undoAction - updatePreviousVersion", 9);
                         let apiResponse = response.generate(true, "error updating previous version", 500, err);
@@ -726,7 +723,7 @@ let undoAction = (req, res) => {
     // updating current version to hidden : true
     let updateCurrentVersion = () => {
         return new Promise((resolve, reject) => {
-            ItemModel.update({ itemId: req.params.itemId }, { isHidden: true }, { multi: true }, (err, result) => {
+            ItemModel.update({ itemId: req.body.itemId }, { isHidden: true }, { multi: true }, (err, result) => {
                 if (err) {
                     logger.error("error updating current version", "toDoController : undoAction - updateCurrentVersion", 9);
                     let apiResponse = response.generate(true, "error updating current version", 500, err);
@@ -766,8 +763,8 @@ let redoAction = (req, res) => {
     // requires current version itemId as path parameter
     let updateNextVersion = () => {
         return new Promise((resolve, reject) => {
-            if (req.params.itemId) {
-                ItemModel.update({ previousId: req.params.itemId }, { isHidden: false }, { multi: true }, (err, result) => {
+            if (req.body.itemId) {
+                ItemModel.update({ previousId: req.body.itemId }, { isHidden: false }, { multi: true }, (err, result) => {
                     if (err) {
                         logger.error("error updating next version", "toDoController : redoAction - updateNextVersion", 9);
                         let apiResponse = response.generate(true, "error updating next version", 500, err);
@@ -791,7 +788,7 @@ let redoAction = (req, res) => {
     // updating current version to hidden : true
     let updateCurrentVersion = () => {
         return new Promise((resolve, reject) => {
-            ItemModel.update({ itemId: req.params.itemId }, { isHidden: true }, { multi: true }, (err, result) => {
+            ItemModel.update({ itemId: req.body.itemId }, { isHidden: true }, { multi: true }, (err, result) => {
                 if (err) {
                     logger.error("error updating current version", "toDoController : redoAction - updateCurrentVersion", 9);
                     let apiResponse = response.generate(true, "error updating current version", 500, err);

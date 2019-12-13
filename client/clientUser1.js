@@ -125,9 +125,9 @@ let chatSocket = ()=>{
     socket.emit('get-user-lists',(request));
     socket.emit('get-user-lists',(oldRequest));
     socket.emit('get-friends', (request));
-    socket.emit('join-friends-rooms',(request.userId));
-    socket.emit('get-online-users', (request.userId));
-    socket.emit('friend-request-count', request.userId);
+    socket.emit('join-friends-rooms',(request));
+    socket.emit('get-online-users', (request));
+    socket.emit('friend-request-count', request);
     
 
     // on clicking on a user emit get-user-lists

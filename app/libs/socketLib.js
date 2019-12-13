@@ -57,22 +57,28 @@ let setServer = (server)=>{
                     socket.room = 'toDoUsers';
                     socket.join(socket.room);
                     // updating the online list to everyone 
+                    console.log("emitting updated online users on 'online-user-list'")
+                    console.log(onlineUsers)
+                    socket.to(socket.room).broadcast.emit('online-user-list', onlineUsers);                  
 
-                    socket.join(socket.room).broadcast.emit('online-user-list', onlineUsers);                  
-
-
+                    // eventEmitter.emit('online-list', onlineUsers);
                     
 
                 }
             })
         })
 
-        socket.on('get-online-users',(userId)=>{
+        // eventEmitter.on('online-list', (onlineUsers)=>{
+        //     myIo.emit('online-user-list', onlineUsers);
+        // })
+
+        socket.on('get-online-users',(request)=>{
+            console.log("emiting online users on 'get-online-users'")
             console.log(onlineUsers);
             let data = {
                 onlineUsersList : onlineUsers
             }
-            socket.emit(userId, data);
+            socket.emit(request.userId, data);
         })
 
         
@@ -99,12 +105,16 @@ let setServer = (server)=>{
             eventEmitter.emit('get-user-friends',(data.userId));
         })
 
-
+        socket.on('get-todo-users', (data)=>{
+            console.log("get todo users event called");
+            eventEmitter.emit('get-all-todo-users', (data));
+        })
 
         // client on logging in successfully emits "friend-request-count" to which the socket sends
         // back the number of pending request
 
         socket.on('friend-request-count',(request)=>{
+            console.log("get friend request count event heard from : "+request);
             eventEmitter.emit('request-count', (request))
         })
 
@@ -130,17 +140,26 @@ let setServer = (server)=>{
 
         // emit friends of the user on login
         eventEmitter.on('user-friends', (data)=>{
-            console.log("user friends event heard from eventEmitter");
-            console.log(data);
+            // console.log("user friends event heard from eventEmitter");
+            // console.log(data);
             myIo.emit(data.userId, data)
         })
 
+        // send pending request count to the user
         eventEmitter.on('pending-count', (data)=>{
+            console.log("sending pending request count")
+            console.log(data);
             myIo.emit(data.userId, data);
         })
 
-        // join friends rooms
 
+        // send todo App users details
+        eventEmitter.on('send-todo-users', (data)=>{
+            myIo.emit(data.userId, data);
+        })
+
+
+        // join friends rooms
         socket.on('join-friends-rooms', (userId)=>{
             let queryObj = {
                 userId : userId,
@@ -187,6 +206,7 @@ let setServer = (server)=>{
                         message : notificationMessage
                     }
                     socket.to(socket.room).broadcast.emit("friend-request-notification", data);
+                    eventEmitter.emit('request-count', (data.userId));
                 }
             })
         })
@@ -375,23 +395,45 @@ eventEmitter.on('request-count', (request)=>{
             if(err){
                 logger.error("error retreiving pending request count", "socketLib : eventEmitter on 'request-count", 9);
                 let socketResponse = response.generate(true, "error retreiving pending requests count", 500, err);
-                let data = {userId : request, userFriends : socketResponse};
+                let data = {userId : request, requestCount : socketResponse};
                 eventEmitter.emit('error-occurred', data);
             }else if(check.isEmpty(result)){
                 logger.error("no pending requests", "socketLib : eventEmitter on 'request-count", 9);
                 let socketResponse = response.generate(true, "no pending requests found", 404, null);
-                let data = {userId : request, userFriends : socketResponse};
+                let data = {userId : request, requestCount : socketResponse};
                 eventEmitter.emit('error-occurred', data);
             }else {
                 logger.info("pending requests count found", "socketLib : eventEmitter on 'request-count", 9);
                 let socketResponse = response.generate(false, "pending requests count found", 200, result);
-                let data = {userId : request, userFriends : socketResponse};
+                let data = {userId : request, requestCount : socketResponse};
                 eventEmitter.emit('pending-count', data);
             }
         })
 })
 
 
+eventEmitter.on('get-all-todo-users',(request)=>{
+    UserModel.find()
+    .select('-__v -_id -password -createdOn')
+    .exec((err, result)=>{
+        if(err){
+            logger.error("error retreiving todo user details", "socketLib : eventEmitter on get-all-todo-users", 9);
+            let socketResponse = response.generate(true, "error retreiving todo app users", 500, err);
+            let data = {userId : request, todoUsers : socketResponse};
+            eventEmitter.emit('error-occurred', data);
+        }else if(check.isEmpty(result)){
+            logger.error("no users found", "socketLib : eventEmitter on get-all-todo-users", 9);
+            let socketResponse = response.generate(true, "no users found", 404, null);
+            let data = {userId : request, todoUsers : socketResponse};
+            eventEmitter.emit('error-occurred', data);
+        }else {
+            logger.info("todo users found", "socketLib : eventEmitter on get-all-todo-users", 9);
+            let socketResponse = response.generate(false, "todo app users found", 200, result);
+            let data = {userId : request, todoUsers : socketResponse};
+            eventEmitter.emit('send-todo-users', data);
+        }
+    })
+})
 
 
 

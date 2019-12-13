@@ -260,9 +260,9 @@ let setRouter = (app)=>{
 
 
     // required body param : listOwnerId
-    // required path params : itemId
+    // required body params : itemId
     // required body/header/query param : authToken
-    app.post(`${baseUrl}/:itemId/deleteItem`, auth.isAuthenticated, friendCheck.isAuthorized, controller.deleteItem);
+    app.post(`${baseUrl}/deleteItem`, auth.isAuthenticated, friendCheck.isAuthorized, controller.deleteItem);
 
 
 
@@ -305,10 +305,10 @@ let setRouter = (app)=>{
      */
 
 
-    // required path params : listId
+    // required body params : listId
     // required body params : listOwnerId, actionOnList
     // required body/header/query param : authToken
-    app.post(`${baseUrl}/:listId/deleteList`, auth.isAuthenticated, friendCheck.isAuthorized, controller.deleteList);
+    app.post(`${baseUrl}/deleteList`, auth.isAuthenticated, friendCheck.isAuthorized, controller.deleteList);
 
 
 
@@ -320,7 +320,7 @@ let setRouter = (app)=>{
      * @apiParam {String} authToken authToken of the user creating the item to be passed as body/path/query/header param 
      * @apiParam {String} listOwnerId user Id of the owner of the list to be passed as a body parameter
      * @apiParam {String} actionOnList actionOnList parameter set to "true" to be passed as a body parameter
-     * @apiParam {String} listId listId of the item to be passed as path parameter
+     * @apiParam {String} listId listId of the item to be passed as body parameter
      * 
      *  @apiSuccessExample {json} Success-Response: 
      * {
@@ -413,7 +413,7 @@ let setRouter = (app)=>{
     // required path params : listId
     // required body param : listOwnerId
     // required body/header/query param : authToken
-    app.get(`${baseUrl}/getAllListItems`, auth.isAuthenticated, friendCheck.isAuthorized, controller.getAllListItems);
+    app.post(`${baseUrl}/getAllListItems`, auth.isAuthenticated, friendCheck.isAuthorized, controller.getAllListItems);
 
 
 
@@ -500,10 +500,10 @@ let setRouter = (app)=>{
      */
 
 
-    // required path params : itemId
+    // required bosy params : itemId
     // required body param : listOwnerId
     // required body/header/query param : authToken
-    app.put(`${baseUrl}/:itemId/markItemAsDone`, auth.isAuthenticated, friendCheck.isAuthorized, controller.markItemAsDone);
+    app.put(`${baseUrl}/markItemAsDone`, auth.isAuthenticated, friendCheck.isAuthorized, controller.markItemAsDone);
 
 
 
@@ -546,10 +546,10 @@ let setRouter = (app)=>{
      */
 
 
-    // required path params : itemId
+    // required body params : itemId
     // required body param : listOwnerId
     // required body/header/query param : authToken
-    app.put(`${baseUrl}/:itemId/markItemAsOpen`, auth.isAuthenticated, friendCheck.isAuthorized, controller.markItemAsOpen);
+    app.put(`${baseUrl}/markItemAsOpen`, auth.isAuthenticated, friendCheck.isAuthorized, controller.markItemAsOpen);
 
 
 
@@ -592,10 +592,10 @@ let setRouter = (app)=>{
      */
 
 
-    // required path params : itemId
+    // required body params : itemId
     // required body param : listOwnerId
     // required body/header/query param : authToken
-    app.put(`${baseUrl}/:itemId/undoAction`, auth.isAuthenticated, friendCheck.isAuthorized, controller.undoAction);
+    app.put(`${baseUrl}/undoAction`, auth.isAuthenticated, friendCheck.isAuthorized, controller.undoAction);
 
 
 
@@ -635,7 +635,7 @@ let setRouter = (app)=>{
      // required path params : itemId
      // required body param : listOwnerId
     // required body/header/query param : authToken
-    app.put(`${baseUrl}/:itemId/redoAction`, auth.isAuthenticated, friendCheck.isAuthorized, controller.redoAction);
+    app.put(`${baseUrl}/redoAction`, auth.isAuthenticated, friendCheck.isAuthorized, controller.redoAction);
 
 
 
