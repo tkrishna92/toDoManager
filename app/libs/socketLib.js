@@ -235,6 +235,21 @@ let setServer = (server)=>{
 
             socket.to(roomId).broadcast.emit('action-notification', notificationDetail);
         })
+
+
+        // on successfull item action an event "item-action" will be send from client
+        socket.on('item-action',(data)=>{
+            console.log("item action request data : ")
+            console.log(data);
+            let roomId = data.roomId;
+            
+            notificationDetail = {
+                details : data,
+                message : `${data.userName} ${data.notificationMessage}`
+            }
+
+            socket.to(roomId).broadcast.emit('item-action-notification', notificationDetail);
+        })
         
         //socket on error
         eventEmitter.on('error-occurred', (data)=>{

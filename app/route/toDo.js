@@ -595,6 +595,99 @@ let setRouter = (app)=>{
      */
 
 
+
+     // required bosy params : listId
+    // required body param : listOwnerId
+    // required body/header/query param : authToken
+    app.put(`${baseUrl}/markListAsDone`, auth.isAuthenticated, friendCheck.isAuthorized, controller.markListAsDone);
+
+
+
+    /**
+     * @api {post} List markItemAsDone - for marking an list as done
+     * @apiVersion 1.0.0
+     * @apiGroup list
+     *
+     * @apiParam {String} authToken authToken of the user creating the list to be passed as body/path/query/header param 
+     * @apiParam {String} listOwnerId user Id of the owner of the list to be passed as a body parameter
+     * @apiParam {String} listId listId of the list to be passed as path parameter
+     * 
+     *  @apiSuccessExample {json} Success-Response: 
+     * {
+            "errorOccured": false,
+            "message": "list done",
+            "status": 200,
+            "data": {
+                "n": 1,
+                "nModified": 1,
+                "ok": 1
+            }
+        }
+     * 
+     * @apiErrorExample {json} Error- Response:
+     * {
+     *      "errorOccurred": true,
+            "message": "internal DB error", 
+            "status": 500,
+            "data": "error data"
+     * }
+     *  
+     * @apiErrorExample {json} Error- Response:
+     * {
+            "errorOccured": true,
+            "message": "no list of given listId found to mark as done",
+            "status": 404,
+            "data": null
+        }
+     */
+
+
+    // required body params : listId
+    // required body param : listOwnerId
+    // required body/header/query param : authToken
+    app.put(`${baseUrl}/markListAsOpen`, auth.isAuthenticated, friendCheck.isAuthorized, controller.markListAsOpen);
+
+
+
+    /**
+     * @api {post} List markItemAsOpen - for marking an list as open
+     * @apiVersion 1.0.0
+     * @apiGroup list
+     *
+     * @apiParam {String} authToken authToken of the user creating the list to be passed as body/path/query/header param 
+     * @apiParam {String} listOwnerId user Id of the owner of the list to be passed as a body parameter
+     * @apiParam {String} listId listId of the list to be passed as path parameter
+     * 
+     *  @apiSuccessExample {json} Success-Response: 
+     * {
+            "errorOccured": false,
+            "message": "list open",
+            "status": 200,
+            "data": {
+                "n": 1,
+                "nModified": 1,
+                "ok": 1
+            }
+        }
+     * 
+     * @apiErrorExample {json} Error- Response:
+     * {
+     *      "errorOccurred": true,
+            "message": "internal DB error", 
+            "status": 500,
+            "data": "error data"
+     * }
+     *  
+     * @apiErrorExample {json} Error- Response:
+     * {
+            "errorOccured": true,
+            "message": "no list of given listId found to mark as open",
+            "status": 404,
+            "data": null
+        }
+     */
+
+
     // required body params : itemId
     // required body param : listOwnerId
     // required body/header/query param : authToken

@@ -636,7 +636,8 @@ let getListDetails =(req, res)=>{
     // get list details
 // requires listId as a body parameter
 let getItemDetails =(req, res)=>{
-    if(req.body.ItemId){
+    console.log()
+    if(req.body.itemId){
         ItemModel.findOne({itemId: req.body.itemId})
         .select('-__v -_id')
         .lean()
@@ -655,6 +656,10 @@ let getItemDetails =(req, res)=>{
                 res.send(apiResponse);
             }
         })
+    }else {
+        logger.error("itemId not provided", "toDoController : getItemDetails", 9);
+        let apiResponse = response.generate(true, "itemId not provided", 400, null);
+        res.send(apiResponse);
     }
     }
 
@@ -666,7 +671,7 @@ let getItemDetails =(req, res)=>{
 // requires skip value as body paramter - optional
 let getAllListItems = (req, res) => {
     if (req.body.listId) {
-        ItemModel.find({ listId: req.body.listId, isHidden: false })
+        ItemModel.find({ listId: req.body.listId, isHidden: false, status : req.body.status })
             .select('-__v -_id')
             .skip(parseInt(req.body.skip) || 0)
             .lean()
@@ -714,6 +719,10 @@ let markItemAsDone = (req, res) => {
                 res.send(apiResponse);
             }
         })
+    }else{
+        logger.error("itemId not provided to make changes", "toDoController : markItemAsDone", 9);
+        let apiResponse = response.generate(true, "itemId not provided to make changes", 400, null);
+        res.send(apiResponse);
     }
 }
 // end of markItemAsDone
@@ -741,6 +750,10 @@ let markItemAsOpen = (req, res) => {
                 res.send(apiResponse);
             }
         })
+    }else{
+        logger.error("itemId not provided to make changes", "toDoController : markItemAsOpen", 9);
+        let apiResponse = response.generate(true, "itemId not provided to make changes", 400, null);
+        res.send(apiResponse);
     }
 }
 // end of markItemAsOpen
@@ -751,22 +764,27 @@ let markItemAsOpen = (req, res) => {
 // it takes itemId as a body param
 let markListAsDone = (req, res) => {
     if (req.body.listId) {
+        console.log(req.body);
         let updatingValue = { listStatus: "done" };
         ListModel.update({ listId : req.body.listId }, updatingValue, { multi: true }, (err, result) => {
             if (err) {
-                logger.error("error upadting the status as done", "toDoController : markItemAsDone", 9);
+                logger.error("error upadting the status as done", "toDoController : markListAsDone", 9);
                 let apiResponse = response.generate(true, "error updating the status as done", 500, err);
                 res.send(apiResponse);
             } else if (result.n == 0) {
-                logger.error("no item of given itemId available to mark as done", "toDoController : markItemAsDone", 9);
-                let apiResponse = response.generate(true, "no item of given itemId found to mark as done", 404, null);
+                logger.error("no list of given list available to mark as done", "toDoController : markListAsDone", 9);
+                let apiResponse = response.generate(true, "no list of given list found to mark as done", 404, null);
                 res.send(apiResponse);
             } else {
-                logger.info("item marked as done", "toDoController : markItemAsDone", 9);
-                let apiResponse = response.generate(false, "item marked as done", 200, result);
+                logger.info("list marked as done", "toDoController : markListAsDone", 9);
+                let apiResponse = response.generate(false, "list done", 200, result);
                 res.send(apiResponse);
             }
         })
+    }else{
+        logger.error("listId not provided to make changes", "toDoController : markListAsDone", 9);
+        let apiResponse = response.generate(true, "listId not provided to make changes", 400, null);
+        res.send(apiResponse);
     }
 }
 // end of markItemAsDone
@@ -776,24 +794,28 @@ let markListAsDone = (req, res) => {
 
 //mark item as open.
 // it takes itemId as a body param
-let markItemAsOpen = (req, res) => {
-    if (req.body.itemId) {
-        let updatingValue = { status: "open" };
-        ItemModel.update({ itemId: req.body.itemId }, updatingValue, { multi: true }, (err, result) => {
+let markListAsOpen = (req, res) => {
+    if (req.body.listId) {
+        let updatingValue = { listStatus: "open" };
+        ListModel.update({ listId: req.body.listId }, updatingValue, { multi: true }, (err, result) => {
             if (err) {
-                logger.error("error upadting the status as open", "toDoController : markItemAsOpen", 9);
+                logger.error("error upadting the status as open", "toDoController : markListAsOpen", 9);
                 let apiResponse = response.generate(true, "error updating the status as open", 500, err);
                 res.send(apiResponse);
             } else if (result.n == 0) {
-                logger.error("no item of given itemId available to mark as open", "toDoController : markItemAsOpen", 9);
-                let apiResponse = response.generate(true, "no item of given itemId found to mark as open", 404, null);
+                logger.error("no list of given listId available to mark as open", "toDoController : markListAsOpen", 9);
+                let apiResponse = response.generate(true, "no list of given listId found to mark as open", 404, null);
                 res.send(apiResponse);
             } else {
-                logger.info("item marked as open", "toDoController : markItemAsOpen", 9);
-                let apiResponse = response.generate(false, "item marked as open", 200, result);
+                logger.info("list marked as open", "toDoController : markListAsOpen", 9);
+                let apiResponse = response.generate(false, "item open", 200, result);
                 res.send(apiResponse);
             }
         })
+    }else{
+        logger.error("listId not provided to make changes", "toDoController : markListAsDone", 9);
+        let apiResponse = response.generate(true, "listId not provided to make changes", 400, null);
+        res.send(apiResponse);
     }
 }
 // end of markItemAsOpen
@@ -1200,6 +1222,8 @@ module.exports = {
     redoAction: redoAction,
     undoListAction : undoListAction,
     redoListAction : redoListAction,
+    markListAsDone : markListAsDone,
+    markListAsOpen : markListAsOpen,
 
     deleteTestList: deleteTestList,    // test
     getAllTestLists: getAllTestLists,  // test
