@@ -351,6 +351,9 @@ let setRouter = (app)=>{
         }
      */
 
+    app.post(`${baseUrl}/getListDetails`, auth.isAuthenticated, friendCheck.isAuthorized, controller.getListDetails);
+    app.post(`${baseUrl}/getItemDetails`, auth.isAuthenticated, friendCheck.isAuthorized, controller.getItemDetails);
+
 
     // required path params : userId
     // required body param : listOwnerId,

@@ -59,7 +59,8 @@ let createNewList = (req, res) => {
             if (req.body.listTitle) {
                 let queryObj = {
                     listTitle: req.body.listTitle,
-                    listOwner: req.user.userId
+                    listOwner: req.body.listOwner,
+                    listIsHidden : false
                 }
                 ListModel.findOne(queryObj, (err, result) => {
                     if (err) {
@@ -91,9 +92,10 @@ let createNewList = (req, res) => {
 
     let createList = () => {
         return new Promise((resolve, reject) => {
+            console.log(req.body);
             let newToDoList = new ListModel({
                 listTitle: req.body.listTitle,
-                listOwner: req.user.userId,
+                listOwner: req.body.listOwner,
                 listDescription: req.body.listDescription || '',
                 listId: shortid.generate(),
                 listStatus: 'open',
@@ -245,13 +247,13 @@ let editItem = (req, res) => {
         return new Promise((resolve, reject) => {
             let editedItem = new ItemModel({
                 listId: itemDetails.listId,
-                title: (req.body.title) ? req.body.title : itemDetails.title,
-                description: (req.body.description) ? req.body.description : itemDetails.description,
+                title: (!check.isEmpty(req.body.title)) ? req.body.title : itemDetails.title,
+                description: (!check.isEmpty(req.body.description)) ? req.body.description : itemDetails.description,
                 itemId: shortid.generate(),
                 previousId: itemDetails.itemId,
                 owner: itemDetails.owner,
                 createdOn: itemDetails.createdOn,
-                dueDate: (req.body.dueDate) ? req.body.dueDate : itemDetails.dueDate,
+                dueDate: (!check.isEmpty(req.body.dueDate)) ? req.body.dueDate : itemDetails.dueDate,
                 modifiedBy: req.user.userId,
                 modifiedOn: Date.now(),
                 parent: itemDetails.parent,
@@ -377,14 +379,14 @@ let editList = (req, res) => {
                     reject(apiResponse);
                 } else {
                     let createNewList = new ListModel({
-                        listTitle: (req.body.listTitle) ? req.body.listTitle : result.listTitle,
+                        listTitle: (!check.isEmpty(req.body.listTitle)) ? req.body.listTitle : result.listTitle,
                         listOwner : result.listOwner,
-                        listDescription: (req.body.listDescription) ? req.body.listDescription : result.listDescription,
+                        listDescription: (!check.isEmpty(req.body.listDescription)) ? req.body.listDescription : result.listDescription,
                         listId: result.listNextId,
                         listCreatedOn : result.CreatedOn,
-                        listStatus : (req.body.listStatus)?req.body.listStatus:result.listStatus,
+                        listStatus : (!check.isEmpty(req.body.listStatus))?req.body.listStatus:result.listStatus,
                         listPreviousId: req.body.listId,
-                        listIsHidden : (req.body.listIsHidden)?req.body.listIsHidden:result.listIsHidden,
+                        listIsHidden : (!check.isEmpty(req.body.listIsHidden))?req.body.listIsHidden:result.listIsHidden,
                         listNextId : '',
                         listModifiedBy: req.user.userId,
                         listModifiedOn : Date.now()
@@ -606,6 +608,59 @@ let getUserAllLists = (req, res) => {
 // end of get user's all lists function
 
 
+// get list details
+// requires listId as a body parameter
+let getListDetails =(req, res)=>{
+    if(req.body.listId){
+        ListModel.findOne({listId : req.body.listId})
+        .select('-__v -_id')
+        .lean()
+        .exec((err, result)=>{
+            if (err) {
+                logger.error("error retreivingt list", "toDoController : getlistDetails", 9);
+                let apiResponse = response.generate(true, "error retreiving the list", 500, err);
+                res.send(apiResponse);
+            } else if (check.isEmpty(result)) {
+                logger.error("list not found", "toDoController : getlistDetails", 9);
+                let apiResponse = response.generate(true, "list not found", 404, null);
+                res.send(apiResponse);
+            } else {
+                logger.info("list found", "toDoController - getlistDetails", 9);
+                let apiResponse = response.generate(false, "list found", 200, result);
+                res.send(apiResponse);
+            }
+        })
+    }
+    }
+
+    // get list details
+// requires listId as a body parameter
+let getItemDetails =(req, res)=>{
+    if(req.body.ItemId){
+        ItemModel.findOne({itemId: req.body.itemId})
+        .select('-__v -_id')
+        .lean()
+        .exec((err, result)=>{
+            if (err) {
+                logger.error("error retreiving the item", "toDoController : getItemDetails", 9);
+                let apiResponse = response.generate(true, "error retreiving item", 500, err);
+                res.send(apiResponse);
+            } else if (check.isEmpty(result)) {
+                logger.error("item not found", "toDoController : getItemDetails", 9);
+                let apiResponse = response.generate(true, "item not found", 404, null);
+                res.send(apiResponse);
+            } else {
+                logger.info("item found", "toDoController - getItemDetails", 9);
+                let apiResponse = response.generate(false, "item found", 200, result);
+                res.send(apiResponse);
+            }
+        })
+    }
+    }
+
+
+
+
 // get all items of list 
 // requires userId as a body parameter
 // requires skip value as body paramter - optional
@@ -689,6 +744,61 @@ let markItemAsOpen = (req, res) => {
     }
 }
 // end of markItemAsOpen
+
+
+
+//mark list as done.
+// it takes itemId as a body param
+let markListAsDone = (req, res) => {
+    if (req.body.listId) {
+        let updatingValue = { listStatus: "done" };
+        ListModel.update({ listId : req.body.listId }, updatingValue, { multi: true }, (err, result) => {
+            if (err) {
+                logger.error("error upadting the status as done", "toDoController : markItemAsDone", 9);
+                let apiResponse = response.generate(true, "error updating the status as done", 500, err);
+                res.send(apiResponse);
+            } else if (result.n == 0) {
+                logger.error("no item of given itemId available to mark as done", "toDoController : markItemAsDone", 9);
+                let apiResponse = response.generate(true, "no item of given itemId found to mark as done", 404, null);
+                res.send(apiResponse);
+            } else {
+                logger.info("item marked as done", "toDoController : markItemAsDone", 9);
+                let apiResponse = response.generate(false, "item marked as done", 200, result);
+                res.send(apiResponse);
+            }
+        })
+    }
+}
+// end of markItemAsDone
+
+
+
+
+//mark item as open.
+// it takes itemId as a body param
+let markItemAsOpen = (req, res) => {
+    if (req.body.itemId) {
+        let updatingValue = { status: "open" };
+        ItemModel.update({ itemId: req.body.itemId }, updatingValue, { multi: true }, (err, result) => {
+            if (err) {
+                logger.error("error upadting the status as open", "toDoController : markItemAsOpen", 9);
+                let apiResponse = response.generate(true, "error updating the status as open", 500, err);
+                res.send(apiResponse);
+            } else if (result.n == 0) {
+                logger.error("no item of given itemId available to mark as open", "toDoController : markItemAsOpen", 9);
+                let apiResponse = response.generate(true, "no item of given itemId found to mark as open", 404, null);
+                res.send(apiResponse);
+            } else {
+                logger.info("item marked as open", "toDoController : markItemAsOpen", 9);
+                let apiResponse = response.generate(false, "item marked as open", 200, result);
+                res.send(apiResponse);
+            }
+        })
+    }
+}
+// end of markItemAsOpen
+
+
 
 
 //undo action on item function 
@@ -1082,6 +1192,8 @@ module.exports = {
     deleteList: deleteList,
     getUserAllLists: getUserAllLists,
     getAllListItems: getAllListItems,
+    getListDetails : getListDetails,
+    getItemDetails : getItemDetails,
     markItemAsDone: markItemAsDone,
     markItemAsOpen: markItemAsOpen,
     undoAction: undoAction,

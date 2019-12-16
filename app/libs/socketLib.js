@@ -124,7 +124,14 @@ let setServer = (server)=>{
         eventEmitter.on('send-list', (data)=>{
             console.log('send-list event heard from eventEmitter')
             console.log(data);
-            myIo.emit(data.requestDetails.userId, data);
+            if(data.requestDetails.userId == data.requestDetails.listOwner){
+                myIo.emit(data.requestDetails.userId, data); 
+                myIo.emit(data.requestDetails.listOwner, data);
+            }else{
+                myIo.emit(data.requestDetails.userId, data);
+                myIo.emit(data.requestDetails.listOwner, data);
+            }
+            // myIo.emit(data.requestDetails.userId, data);
         })
 
         // emit list items
@@ -189,14 +196,16 @@ let setServer = (server)=>{
             console.log(data);
             let friendName = data.friendName;
             let notificationMessage = data.notificationMessage;
-            UserModel.findOne({userId : data.userId},(err, result)=>{
+            UserModel.findOne({userId : data.data.userId},(err, result)=>{
                 if(err){
                     logger.error("error retreiving request receiver user detials", "socketLib : on 'friend-request'", 9);
                     let socketResponse = response.generate(true, "error retreiving request receiver user details for notification purpose", 500, err);
+                    console.log("emitted friend notification to room toDoUsers 1")
                     socket.emit("error-occurred", socketResponse);
                 }else if(check.isEmpty(result)){
                     logger.error("request receiver user detials not found for notification of friend request", "socketLib : on 'friend-request'", 9);
                     let socketResponse = response.generate(true, "request receiver user detials not found for notification of friend request", 404, null);
+                    console.log("emitted friend notification to room toDoUsers 2")
                     socket.emit("error-occurred", socketResponse);
                 }else {
                     logger.info("friend request notification success","socketLib : on 'friend-request'", 9);
@@ -205,7 +214,8 @@ let setServer = (server)=>{
                         receiverName : `${result.firstName} ${result.lastName}`,
                         message : notificationMessage
                     }
-                    socket.to(socket.room).broadcast.emit("friend-request-notification", data);
+                    socket.to(socket.room).broadcast.emit('friend-request-notification', data);
+                    console.log("emitted friend notification to room toDoUsers 3")
                     eventEmitter.emit('request-count', (data.userId));
                 }
             })
@@ -295,12 +305,12 @@ eventEmitter.on('get-items',(request)=>{
         if(err){
             logger.error("error retreiving items of the list", "socketLib : eventEmitter on 'get-items'", 9);
             let socketResponse = response.generate(true, "error retreiving items of the list", 500, err);
-            let data = {userId : request.userId, response : socketResponse}
+            let data = {userId : request, response : socketResponse}
             eventEmitter.emit('error-occurred', data);
         }else if(check.isEmpty(result)){
             logger.error("no items found on the list", "socketLib : eventEmitter on 'get-items'", 9);
             let socketResponse = response.generate(true, "no items found on the list", 404, null);
-            let data = {userId : request.userId, response : socketResponse}
+            let data = {userId : request, response : socketResponse}
             eventEmitter.emit('error-occurred', data);
         }else {
             logger.info("items found on the list", "socketLib : eventEmitter on 'get-items'", 9);
@@ -316,6 +326,8 @@ eventEmitter.on('get-items',(request)=>{
 // this gets and emits user lists
 eventEmitter.on('get-list', (request)=>{
     console.log("event 'get-list' heard" )
+    console.log(request.listOwner)
+    console.log(request);
     let queryObj = {
         listOwner : request.listOwner,
         listIsHidden : false,
@@ -330,12 +342,12 @@ eventEmitter.on('get-list', (request)=>{
                 if (err) {
                     logger.error("error retreiving list of the user", "socketLib : eventEmitter on 'get-list' ", 9);
                     socketResponse = response.generate(true, "error retreiving lists of the user", 500, err);
-                    let data ={userId : request.userId, userList : socketResponse}                    
+                    let data ={userId : request.userId, userList : socketResponse, request : request} 
                     eventEmitter.emit('error-occurred', data);
                 } else if (check.isEmpty(result)) {
                     logger.error("user's lists not found", "socketLib : eventEmitter on 'get-list' ", 9);
-                    socketResponse = response.generate(true, "user's list not found", 404, null);
-                    let data ={userId : request.userId, userList : socketResponse} 
+                    socketResponse = response.generate(true, `user's list not found`, 404, null);
+                    let data ={userId : request.userId, userList : socketResponse, request : request} 
                     eventEmitter.emit('error-occurred', data);
                 } else {
                     logger.info("user lists found", "socketLib : eventEmitter on 'get-list' ", 9);
@@ -364,17 +376,17 @@ eventEmitter.on('get-user-friends',(userId)=>{
             if(err){
                 logger.error("error retrieving users friends", "socketLib : eventEmitter on get-user-friends", 9);
                 socketResponse = response.generate(true, "error retreiving user's friends", 500, err);
-                let data = {userId : userId, userFriends : socketResponse};
+                let data = {userId : userId, userFriends : socketResponse, request : userId};
                 eventEmitter.emit('error-occurred', data);
             }else if(check.isEmpty(result)){
                 logger.error("no friends of the user found", "socketLib : eventEmitter on get-user-friends", 9);
                 socketResponse = response.generate(true, "no friends found", 404, null);
-                let data = {userId : userId, userFriends : socketResponse};
+                let data = {userId : userId, userFriends : socketResponse, request : userId};
                 eventEmitter.emit('error-occurred', data);
             }else {
                 logger.info("friends found", "socketLib : eventEmitter on get-user-friends", 9);
                 socketResponse = response.generate(false, "friends found", 200, result);
-                let data = {userId : userId, userFriends : socketResponse};
+                let data = {userId : userId, userFriends : socketResponse, request : userId};
                 eventEmitter.emit('user-friends', data);
             }
     })
@@ -395,17 +407,17 @@ eventEmitter.on('request-count', (request)=>{
             if(err){
                 logger.error("error retreiving pending request count", "socketLib : eventEmitter on 'request-count", 9);
                 let socketResponse = response.generate(true, "error retreiving pending requests count", 500, err);
-                let data = {userId : request, requestCount : socketResponse};
+                let data = {userId : request, requestCount : socketResponse, request : request};
                 eventEmitter.emit('error-occurred', data);
             }else if(check.isEmpty(result)){
                 logger.error("no pending requests", "socketLib : eventEmitter on 'request-count", 9);
                 let socketResponse = response.generate(true, "no pending requests found", 404, null);
-                let data = {userId : request, requestCount : socketResponse};
+                let data = {userId : request, requestCount : socketResponse, request : request};
                 eventEmitter.emit('error-occurred', data);
             }else {
                 logger.info("pending requests count found", "socketLib : eventEmitter on 'request-count", 9);
                 let socketResponse = response.generate(false, "pending requests count found", 200, result);
-                let data = {userId : request, requestCount : socketResponse};
+                let data = {userId : request, requestCount : socketResponse, request : request};
                 eventEmitter.emit('pending-count', data);
             }
         })
@@ -419,12 +431,12 @@ eventEmitter.on('get-all-todo-users',(request)=>{
         if(err){
             logger.error("error retreiving todo user details", "socketLib : eventEmitter on get-all-todo-users", 9);
             let socketResponse = response.generate(true, "error retreiving todo app users", 500, err);
-            let data = {userId : request, todoUsers : socketResponse};
+            let data = {userId : request, todoUsers : socketResponse, request : request};
             eventEmitter.emit('error-occurred', data);
         }else if(check.isEmpty(result)){
             logger.error("no users found", "socketLib : eventEmitter on get-all-todo-users", 9);
             let socketResponse = response.generate(true, "no users found", 404, null);
-            let data = {userId : request, todoUsers : socketResponse};
+            let data = {userId : request, todoUsers : socketResponse, request : request};
             eventEmitter.emit('error-occurred', data);
         }else {
             logger.info("todo users found", "socketLib : eventEmitter on get-all-todo-users", 9);
