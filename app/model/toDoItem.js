@@ -11,7 +11,7 @@ let ItemSchema = new Schema({
     nextId : {type : String, default : ''},
     owner : {type : String, default : ''},
     createdOn : {type : Date, default : ''},
-    dueDate : {type : Date, default : ''},
+    dueDate : {type : String, default : ''},
     modifiedBy : {type : String, default : ''},
     modifiedOn : {type : Date, default : ''},
     parent : {type : String, default : ''},

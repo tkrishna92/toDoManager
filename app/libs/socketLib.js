@@ -217,6 +217,7 @@ let setServer = (server)=>{
                     socket.to(socket.room).broadcast.emit('friend-request-notification', data);
                     console.log("emitted friend notification to room toDoUsers 3")
                     eventEmitter.emit('request-count', (data.userId));
+                    eventEmitter.emit('request-count', (data.friendId));
                 }
             })
         })

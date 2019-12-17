@@ -187,7 +187,7 @@ let setRouter = (app) => {
 
     // params : email, password
     //
-    app.get(`${baseUrl}/getSingleUser`, auth.isAuthenticated, controller.getSingleUser);
+    app.put(`${baseUrl}/getSingleUser`, auth.isAuthenticated, controller.getSingleUser);
 
 
     /**

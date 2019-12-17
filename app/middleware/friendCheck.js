@@ -11,6 +11,8 @@ const FriendModel = mongoose.model('Friend');
 let isAuthorized = (req, res, next) => {
 
     if (req.body.listOwnerId && req.user.userId) {
+        console.log(req.body.listOwnerId);
+        console.log(req.user.userId);
         if (req.body.listOwnerId == req.user.userId) {
             next();
         } else {

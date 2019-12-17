@@ -896,6 +896,7 @@ let redoAction = (req, res) => {
     let updateNextVersion = () => {
         return new Promise((resolve, reject) => {
             if (req.body.itemId) {
+                console.log(req.body)
                 ItemModel.update({ previousId: req.body.itemId }, { isHidden: false }, { multi: true }, (err, result) => {
                     if (err) {
                         logger.error("error updating next version", "toDoController : redoAction - updateNextVersion", 9);
