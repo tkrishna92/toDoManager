@@ -24,12 +24,15 @@ const logger = require('./app/libs/loggerLib');
 
 const app = express();
 
+const cors = require('cors');
+
 //using required modules and middlewares at app level
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended : false}));
 app.use(cookieParser());
 app.use(helmet());
+app.use(cors());
 app.use(appErrorHandler.appGlobalErrorHandler);
 app.use(routeIPLogger.routeIPLogger);
 
