@@ -16,7 +16,7 @@ let setRouter = (app) => {
     app.post(`${baseUrl}/signup`, controller.signup);
 
     /**
-     * @api {post} /users/signup - for new user signup
+     * @api {post} /users/signup signup 
      * @apiVersion 1.0.0
      * @apiGroup users
      * 
@@ -67,7 +67,7 @@ let setRouter = (app) => {
 
 
     /**
-     * @api {post} user login - for existing user login
+     * @api {post} /users/login login user
      * @apiVersion 1.0.0
      * @apiGroup users
      * 
@@ -119,7 +119,7 @@ let setRouter = (app) => {
 
 
     /**
-     * @api {get} user get-all-users - for getting all the user details available on the db
+     * @api {get} /users/getAllUsers get all toDo users
      * @apiVersion 1.0.0
      * @apiGroup users
      * 
@@ -190,7 +190,7 @@ let setRouter = (app) => {
 
 
     /**
-     * @api {get} user get-single-users - for getting single user details available on the db
+     * @api {get} /user/getSingleUsers getsingle user details
      * @apiVersion 1.0.0
      * @apiGroup users
      * 
@@ -246,7 +246,7 @@ let setRouter = (app) => {
 
 
     /**
-     * @api {put} user edit-user - for editing the user details available on the db
+     * @api {put} /users/:userId/edit edit the user details
      * @apiVersion 1.0.0
      * @apiGroup users
      * 
@@ -292,7 +292,7 @@ let setRouter = (app) => {
     app.put(`${baseUrl}/:userId/delete`, auth.isAuthenticated, controller.deleteUser);
 
     /**
-     * @api {put} user delete-user - for deleting user details available on the db
+     * @api {put} /users/:userId/delete delete a user's todo account
      * @apiVersion 1.0.0
      * @apiGroup users
      * 
@@ -335,7 +335,7 @@ let setRouter = (app) => {
      // params : email, mobileNumer to be setn as body parameters
     app.post(`${baseUrl}/forgotPassword`, controller.forgotPassword);
     /**
-     * @api {post} user forgotPassword - for recovering of forgotten password
+     * @api {post} /users/forgotPassword password recovery
      * @apiVersion 1.0.0
      * @apiGroup users
      * 
@@ -387,7 +387,7 @@ let setRouter = (app) => {
 
 
     /**
-     * @api {put} user edit-password - for editing password from the user details available on the db
+     * @api {put} /users/editPassword edit user password
      * @apiVersion 1.0.0
      * @apiGroup users
      * 
@@ -445,7 +445,7 @@ let setRouter = (app) => {
     app.put(`${baseUrl}/logout`, auth.isAuthenticated, controller.logout);
 
     /**
-     * @api {put} user logout - for logging out the user and removing the auth details from the db.
+     * @api {put} /users/logout logout user
      * @apiVersion 1.0.0
      * @apiGroup users
      * 
