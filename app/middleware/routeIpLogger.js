@@ -16,6 +16,7 @@ let routeIpLogger = (req, res, next)=>{
     if(req.method === 'OPTIONS'){
         
         var headers = {};
+        headers["Access-Control-Allow-Origin"]=req.headers.origin;
         headers["Access-Control-Allow-Origin"]="*";
         headers["Access-Control-Allow-Methods"]= "POST, GET, PUT, DELETE, OPTIONS";
         headers["Access-Control-Allow-Credentials"] = false;
