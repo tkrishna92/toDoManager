@@ -17,7 +17,7 @@
     "country-telephone-code": "^0.2.0",
     "express": "^4.17.1",
     "helmet": "^3.21.2",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.27",
     "mongoose": "^5.7.13",
